@@ -10,7 +10,7 @@
 
 ![Static Badge](https://img.shields.io/badge/c++-blue)
 
-:school: Students of [@HRBUST](hrbust.edu.cn)
+:school: Student of [@HRBUST](hrbust.edu.cn)
 :man_technologist: [@mcxiaoxiao](https://github.com/mcxiaoxiao)
 
 ## Introduction :raised_hands:
@@ -19,7 +19,7 @@
 
 
 c-Decision-tree 🌳 简单的决策树
-比较严谨的实现，如果输出有报错可能是不支持emoji
+比较严谨的c++实现，如果输出有报错可能是不支持emoji
 代码以天气预测是否适合出行为例，修改起来很方便。
 
 
