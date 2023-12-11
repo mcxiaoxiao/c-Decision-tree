@@ -5,62 +5,52 @@
 #include <algorithm>
 #include <map>
 #include <math.h>
+#include <fstream>
+#include <sstream>
 using namespace std;
  
-#define N 10
+#define N 14
 #define feature 4
 vector< vector<string> > X;
-string x[N][feature+1] = 
-{
-	{"Çç",    "ÈÈ", "¸ß", "·ñ", "²»ÊÊºÏ"},   
-	{"Çç",    "ÈÈ", "¸ß", "ÊÇ", "²»ÊÊºÏ"},
-	{"Òõ",    "ÈÈ", "¸ß", "·ñ",   "ÊÊºÏ"},
-	{"Óê",    "ÎÂ", "¸ß", "·ñ",   "ÊÊºÏ"},
-	{"Óê",  "Á¹Ë¬", "ÖĞ", "·ñ",   "ÊÊºÏ"},
-	{"Óê",  "Á¹Ë¬", "ÖĞ", "ÊÇ", "²»ÊÊºÏ"},
-	{"Òõ",  "Á¹Ë¬", "ÖĞ", "ÊÇ",   "ÊÊºÏ"},
-	{"Çç",    "ÎÂ", "¸ß", "·ñ", "²»ÊÊºÏ"},
-	{"Çç",  "Á¹Ë¬", "ÖĞ", "·ñ",   "ÊÊºÏ"},
-	{"Óê",    "ÎÂ", "ÖĞ", "·ñ",   "ÊÊºÏ"},
-//	{"Çç",    "ÎÂ", "ÖĞ", "ÊÇ",   "ÊÊºÏ"},
-//	{"Òõ",    "ÎÂ", "¸ß", "ÊÇ",   "ÊÊºÏ"},
-//	{"Òõ",    "ÈÈ", "ÖĞ", "·ñ",   "ÊÊºÏ"},
-//	{"Óê",    "ÎÂ", "¸ß", "ÊÇ", "²»ÊÊºÏ"}
-};
+
  
-//ËÄ¸öÌØÕ÷µÄÃû³Æ£¬±ÈÈçÌìÆøÈ¡ÖµÓĞÈı¸ö£ºÇç£¬Òõ£¬Óê 
-string attribute[] = {"ÌìÆø", "ÎÂ¶È", "Êª¶È", "ÊÇ·ñÓĞ·ç"};
+//å››ä¸ªç‰¹å¾çš„åç§°ï¼Œæ¯”å¦‚å¤©æ°”å–å€¼æœ‰ä¸‰ä¸ªï¼šæ™´ï¼Œé˜´ï¼Œé›¨ 
+string attribute[] = {"å¤©æ°”", "æ¸©åº¦", "æ¹¿åº¦", "æ˜¯å¦æœ‰é£"};
  
 vector<string> attributes;
- 
-//´´½¨Êı¾İ¼¯
-void createDataset() {
-	//´´½¨Êı¾İ¼¯
-	X = vector< vector<string> >(N, vector<string>(feature+1));
-	int i, j;
-	for(i=0; i<N; i++) {
-		for(int j=0; j<feature+1; j++) {
-			X[i][j] = x[i][j];
-		}
-	}
-	//´´½¨ÌØÕ÷
-	for(i=0; i<feature; i++)
-		attributes.push_back(attribute[i]);
+ void createDataset() {
+    ifstream file("data.txt");
+    string line;
+    while (getline(file, line)) {
+        vector<string> row;
+        istringstream iss(line);
+        string value;
+        while (iss >> value) {
+            row.push_back(value);
+        }
+        X.push_back(row);
+    }
+    file.close();
+
+    for (int i = 0; i < feature; i++) {
+        attributes.push_back(X[0][i]);
+    }
 }
+
  
-//¼ÆËã¸ø¶¨Êı¾İ¼¯µÄÏãÅ©ìØ
+//è®¡ç®—ç»™å®šæ•°æ®é›†çš„é¦™å†œç†µ
 double calcShanno(const vector< vector<string> > &data) {
 	 int n = data.size();
 	 map<string, int> classCounts;
 	 int i;
 	 int label = data[0].size() - 1;
-    //³õÊ¼Îª0
+    //åˆå§‹ä¸º0
 	 for(i=0; i<n; i++)
 		classCounts[ data[i][label] ] = 0;
-     //Ã¿µ±³öÏÖÒ»´Î£¬+1
+     //æ¯å½“å‡ºç°ä¸€æ¬¡ï¼Œ+1
 	 for(i=0; i<data.size(); i++)
 		classCounts[ data[i][label] ] += 1;
-	 //¼ÆËãÏãÅ©ìØ
+	 //è®¡ç®—é¦™å†œç†µ
 	 double shanno = 0;
 	 map<string, int>::iterator it;
 	 for(it = classCounts.begin(); it != classCounts.end(); it++) {
@@ -70,14 +60,14 @@ double calcShanno(const vector< vector<string> > &data) {
 	 return shanno;
 }
  
-//°´ÕÕ¸ø¶¨ÌØÕ÷»®·ÖÊı¾İ¼¯£¬»®·ÖºóµÄÊı¾İ¼¯ÖĞ²»°üº¬¸ø¶¨ÌØÕ÷£¬¼´ĞÂµÄÊı¾İ¼¯µÄÎ¬¶ÈÉÙÁËÒ»¸ö
-//axis £ºÌØÕ÷ÏÂ±ê
-//value£ºÌØÕ÷Öµ
+//æŒ‰ç…§ç»™å®šç‰¹å¾åˆ’åˆ†æ•°æ®é›†ï¼Œåˆ’åˆ†åçš„æ•°æ®é›†ä¸­ä¸åŒ…å«ç»™å®šç‰¹å¾ï¼Œå³æ–°çš„æ•°æ®é›†çš„ç»´åº¦å°‘äº†ä¸€ä¸ª
+//axis ï¼šç‰¹å¾ä¸‹æ ‡
+//valueï¼šç‰¹å¾å€¼
 vector< vector<string> > splitDataSet(const vector< vector<string> > data, int axis, string value) {
 	vector< vector<string> > result;
 	for(int i=0; i<data.size(); i++) {
 		if(data[i][axis] == value) {
-			//½«¡°µ±Ç°ÌØÕ÷¡±Õâ¸öÎ¬¶ÈÈ¥µô
+			//å°†â€œå½“å‰ç‰¹å¾â€è¿™ä¸ªç»´åº¦å»æ‰
 			vector<string> removed(data[i].begin(), data[i].begin()+axis);
 			removed.insert(removed.end(), data[i].begin()+axis+1, data[i].end());
 			result.push_back(removed);
@@ -86,12 +76,12 @@ vector< vector<string> > splitDataSet(const vector< vector<string> > data, int a
 	return result;
 }
  
-//´´½¨ÌØÕ÷ÁĞ±í
+//åˆ›å»ºç‰¹å¾åˆ—è¡¨
 vector<string> createFeatureList(const vector< vector<string> > &data, int axis) {
 	int n = data.size();
-	vector<string>featureList;   //ÌØÕ÷µÄËùÓĞÈ¡Öµ
+	vector<string>featureList;   //ç‰¹å¾çš„æ‰€æœ‰å–å€¼
 	set<string> s;
-	for(int j=0; j<n; j++)    //Ñ°ÕÒ¸ÃÌØÕ÷µÄËùÓĞ¿ÉÄÜÈ¡Öµ
+	for(int j=0; j<n; j++)    //å¯»æ‰¾è¯¥ç‰¹å¾çš„æ‰€æœ‰å¯èƒ½å–å€¼
 		s.insert(data[j][axis]);
 	set<string>::iterator it;
 	for(it = s.begin(); it != s.end(); it++) {
@@ -100,23 +90,23 @@ vector<string> createFeatureList(const vector< vector<string> > &data, int axis)
 	return featureList;
 }
  
-//Ñ¡Ôñ×îºÃµÄÊı¾İ¼¯»®·Ö·½Ê½
+//é€‰æ‹©æœ€å¥½çš„æ•°æ®é›†åˆ’åˆ†æ–¹å¼
 int chooseBestFeatureToSplit(const vector< vector<string> > &data) {
 	int n = data[0].size() - 1; 
-	double bestEntropy = calcShanno(data);  //³õÊ¼ÏãÅ©ìØ
-	double bestInfoGain = 0;   //×î´óµÄĞÅÏ¢ÔöÒæ
-	int bestFeature = 0;       //×îºÃµÄÌØÕ÷
-    //ËùÓĞÌØÕ÷
+	double bestEntropy = calcShanno(data);  //åˆå§‹é¦™å†œç†µ
+	double bestInfoGain = 0;   //æœ€å¤§çš„ä¿¡æ¯å¢ç›Š
+	int bestFeature = 0;       //æœ€å¥½çš„ç‰¹å¾
+    //æ‰€æœ‰ç‰¹å¾
 	for(int i=0; i<n; i++) {
 		double newEntropy = 0;
-        //¸ÃÌØÕ÷µÄËùÓĞ¿ÉÄÜÈ¡Öµ
+        //è¯¥ç‰¹å¾çš„æ‰€æœ‰å¯èƒ½å–å€¼
 		vector<string> featureList = createFeatureList(data, i);  
 		for(int j=0; j<featureList.size(); j++) {
 			vector< vector<string> > subData = splitDataSet(data, i, featureList[j]);
 			double prob = (double)subData.size() / (double)data.size();
 			newEntropy += prob * calcShanno(subData);   
 		}
-                          //ĞÅÏ¢ÔöÒæ£¬¼´ìØµÄ¼õÉÙ£¬»òÊı¾İÎŞĞò¶ÈµÄ¼õÉÙ
+                          //ä¿¡æ¯å¢ç›Šï¼Œå³ç†µçš„å‡å°‘ï¼Œæˆ–æ•°æ®æ— åºåº¦çš„å‡å°‘
 		double infoGain = bestEntropy - newEntropy;  
 		if(infoGain > bestInfoGain) {
 			bestInfoGain = infoGain;
@@ -126,8 +116,8 @@ int chooseBestFeatureToSplit(const vector< vector<string> > &data) {
 	return bestFeature;
 }
  
-//·µ»Ø³öÏÖ´ÎÊı×î¶àµÄ·ÖÀàÃû³Æ
-//Èç¹ûÊı¾İ¼¯ÒÑ´¦ÀíÁËËùÓĞÊôĞÔ£¬µ«Àà±êÇ©ÒÀÈ»²»ÊÇÎ¨Ò»µÄ£¬²ÉÓÃ¶àÊı±í¾öµÄ·½·¨¶¨ÒåÒ¶×Ó½ÚµãµÄ·ÖÀà
+//è¿”å›å‡ºç°æ¬¡æ•°æœ€å¤šçš„åˆ†ç±»åç§°
+//å¦‚æœæ•°æ®é›†å·²å¤„ç†äº†æ‰€æœ‰å±æ€§ï¼Œä½†ç±»æ ‡ç­¾ä¾ç„¶ä¸æ˜¯å”¯ä¸€çš„ï¼Œé‡‡ç”¨å¤šæ•°è¡¨å†³çš„æ–¹æ³•å®šä¹‰å¶å­èŠ‚ç‚¹çš„åˆ†ç±»
 string majorityCnt(vector<string> &classList) {
 	int n = classList.size();
 	map<string, int> classCount;
@@ -161,7 +151,7 @@ struct Node {
 };
 Node *root = NULL;
  
-//µİ¹é¹¹½¨¾ö²ßÊ÷
+//é€’å½’æ„å»ºå†³ç­–æ ‘
 Node* createTree(Node *root, const vector< vector<string> > &data, vector<string> &attribute) {
 	if(root == NULL)
 		root = new Node();
@@ -174,28 +164,28 @@ Node* createTree(Node *root, const vector< vector<string> > &data, vector<string
 		classList.push_back(data[i][label]);
 		classList1.insert(data[i][label]);
 	}
-    //Èç¹ûËùÓĞÊµÀı¶¼ÊôÓÚÍ¬Ò»Àà£¬Í£Ö¹»®·Ö
+    //å¦‚æœæ‰€æœ‰å®ä¾‹éƒ½å±äºåŒä¸€ç±»ï¼Œåœæ­¢åˆ’åˆ†
 	if(classList1.size() == 1) {
-		if(classList[0] == "ÊÊºÏ")
-			root->attribute = "ÊÊºÏ";
+		if(classList[0] == "é€‚åˆ")
+			root->attribute = "é€‚åˆ";
 		else
-			root->attribute = "²»ÊÊºÏ";
+			root->attribute = "ä¸é€‚åˆ";
 		root->isLeaf = true;
 		return root;
 	}
-    //±éÀúÍêËùÓĞÌØÕ÷£¬·µ»Ø³öÏÖ´ÎÊı×î¶àµÄÀà±ğ
+    //éå†å®Œæ‰€æœ‰ç‰¹å¾ï¼Œè¿”å›å‡ºç°æ¬¡æ•°æœ€å¤šçš„ç±»åˆ«
 	if(data[0].size() == 1) {
 		root->attribute = majorityCnt(classList);
 		return root;
 	}
  
 	int bestFeatureIndex = chooseBestFeatureToSplit(data);
-    //µÃµ½ÊôĞÔµÄËùÓĞ¿ÉÄÜÖµ
+    //å¾—åˆ°å±æ€§çš„æ‰€æœ‰å¯èƒ½å€¼
 	vector<string> featureList = createFeatureList(data, bestFeatureIndex);  
 	string bestFeature = attribute[bestFeatureIndex];
-    //¼ÇÂ¼Òª»®·ÖµÄÊôĞÔ
+    //è®°å½•è¦åˆ’åˆ†çš„å±æ€§
 	root->attribute = bestFeature;   
-    //¶ÔÓÚµ±Ç°ÊôĞÔµÄÃ¿¸ö¿ÉÄÜÖµ£¬´´½¨ĞÂµÄ·ÖÖ§
+    //å¯¹äºå½“å‰å±æ€§çš„æ¯ä¸ªå¯èƒ½å€¼ï¼Œåˆ›å»ºæ–°çš„åˆ†æ”¯
 	for(i=0; i<featureList.size(); i++) {
 		vector<string> subAttribute;  
 		for(j=0; j<attribute.size(); j++) {
@@ -203,14 +193,14 @@ Node* createTree(Node *root, const vector< vector<string> > &data, vector<string
 				subAttribute.push_back(attribute[j]);
 		}
 		Node *newNode = new Node();
-		newNode->val = featureList[i];//¼ÇÂ¼ÊôĞÔµÄÈ¡Öµ
+		newNode->val = featureList[i];//è®°å½•å±æ€§çš„å–å€¼
 		createTree(newNode, splitDataSet(data, bestFeatureIndex, featureList[i]), subAttribute);
 		root->childs.push_back(newNode);
 	}
 	return root;
 }
  
-//´òÓ¡
+//æ‰“å°
 void print(Node *root, int depth) {
 	int i;
 	for(i=0; i<depth; i++)
@@ -227,19 +217,19 @@ void print(Node *root, int depth) {
 	}
 }
  
-//Ô¤²âx
+//é¢„æµ‹x
 string classify(Node *root, vector<string> &attribute, string *test) {
 	string firstFeature = root->attribute;
 	int firstFeatureIndex;
 	int i;
-    //ÕÒµ½¸ù½ÚµãÊÇµÚ¼¸¸öÌØÕ÷
+    //æ‰¾åˆ°æ ¹èŠ‚ç‚¹æ˜¯ç¬¬å‡ ä¸ªç‰¹å¾
 	for(i=0; i<feature; i++) {
 		if(firstFeature == attribute[i]) {
 			firstFeatureIndex = i;
 			break;
 		}
 	}
-	if(root->isLeaf)  //Èç¹ûÊÇÒ¶×Ó½Úµã£¬Ö±½ÓÊä³ö½á¹û
+	if(root->isLeaf)  //å¦‚æœæ˜¯å¶å­èŠ‚ç‚¹ï¼Œç›´æ¥è¾“å‡ºç»“æœ
 		return root->attribute;
 	for(i=0; i<root->childs.size(); i++) {
 		if(test[firstFeatureIndex] == root->childs[i]->val) {
@@ -248,7 +238,7 @@ string classify(Node *root, vector<string> &attribute, string *test) {
 	}
 }
  
-//ÊÍ·Å½Úµã
+//é‡Šæ”¾èŠ‚ç‚¹
 void freeNode(Node *root) {
 	if(root == NULL)
 		return;
@@ -262,16 +252,24 @@ int main() {
 	createDataset();
 	root = createTree(root, X, attributes);
 	print(root, 0);
-	string test[] = {"Çç", "ÎÂ", "ÖĞ", "ÊÇ"};
+	string test[] = {"æ™´", "æ¸©", "ä¸­", "æ˜¯"};
+    cout << "ğŸ‘‹  è¯·è¾“å…¥å¤©æ°”æƒ…å†µ â˜ï¸ ï¼ˆæ™´/é˜´/é›¨ï¼‰";
+    cin >> test[0];
+    cout << "ğŸ˜´  è¯·è¾“å…¥æ¸©åº¦ ğŸŒ¡ï¸ ï¼ˆçƒ­/æ¸©/å‡‰çˆ½ï¼‰";
+    cin >> test[1];
+    cout << "ğŸŒ  è¯·è¾“å…¥æ¹¿åº¦ ğŸ’¦ ï¼ˆé«˜/ä¸­ï¼‰";
+    cin >> test[2];
+    cout << "ğŸš—  è¯·è¾“å…¥æ˜¯å¦åˆ®é£ ğŸŒ¬ ï¼ˆæ˜¯/å¦ï¼‰";
+    cin >> test[3];
 	int i;
-	cout << endl << "ÊôĞÔ£º";
+	cout << endl << "å±æ€§ï¼š";
 	for(i=0; i<feature; i++)
 		cout << attributes[i] << "\t";
-	cout << endl << "Àı×Ó£º";
+	cout << endl << "è¾“å…¥ï¼š";
 	for(i=0; i<feature; i++)
 		cout << test[i] << "\t";
-	cout << endl << "Ô¤²â£º";
-	cout << classify(root, attributes, test) << endl;
+	cout << endl << "é¢„æµ‹ï¼š";
+	cout << classify(root, attributes, test) +"å‡ºè¡Œ" << endl;
 	freeNode(root);
 	return 0;
 }
