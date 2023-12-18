@@ -10,7 +10,7 @@
 
 ![Static Badge](https://img.shields.io/badge/c++-blue)
 
-:school: Student of [@HRBUST](hrbust.edu.cn)
+:school: Student of [@HRBUST](https://hrbust.edu.cn)
 :man_technologist: [@mcxiaoxiao](https://github.com/mcxiaoxiao)
 
 ## Introduction :raised_hands:
